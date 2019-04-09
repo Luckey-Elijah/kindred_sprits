@@ -4,6 +4,9 @@
 # ignored Config files
 .vscode
 
+# Misc files ignored
+*.pdf
+
 ### C ###
 # Prerequisites
 *.d
