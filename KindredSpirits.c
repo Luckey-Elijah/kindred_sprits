@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "KindredSpirits.h"
 
+// passing references
+node *create_node(int data);
+
 // returns 1 if trees are reflection, 0 otherwise
 int isReflection(node *a, node *b)
 {
@@ -28,10 +31,11 @@ node *makeReflection(node *root)
     }
 
     // node *newNode;
-    node * newNode = create_node();
+    node *newNode;
+    newNode = create_node(root->data);
     
-    newNode->left      = makeReflection(root->right);
-    newNode->right     = makeReflection(root->left);
+    newNode->left  = makeReflection(root->right);
+    newNode->right = makeReflection(root->left);
 }
 
 double difficultyRating(void)
