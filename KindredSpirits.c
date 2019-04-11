@@ -64,12 +64,12 @@ void postorder(node *root)
         return;
 
     // push root->data to stack HERE
-    postorder(root->left);
-    postorder(root->right);
+    return postorder(root->left) && postorder(root->right);
 }
 
 int kindredSpirits (node *a, node *b){
     // check if kindred spirits
+    if (postorder())
 }
 
 double difficultyRating(void)
