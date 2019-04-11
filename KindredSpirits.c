@@ -38,22 +38,17 @@ node *makeReflection(node *root)
     newNode->left  = makeReflection(root->right); // mirror right to left
     newNode->right = makeReflection(root->left);  // mirror left to right
 }
-
-//     Preorder traversal (recursive):
-//         - visit the root node
-//         - traverse the left subtree using preorder traversal
-//         - traverse the right subtree using preorder traversal
-
 // TODO: A stack for checking traversals?
 
 // preorder algorithm traversal
 void preorder(node *root)
 {
     if (root = NULL)
-        return;
+        {return NULL;}
 
     preorder(root->left);
     preorder(root->right);
+    printf("%d ", root->data);
     // push root data to stack HERE
 }
 
@@ -61,15 +56,23 @@ void preorder(node *root)
 void postorder(node *root)
 {
     if (root = NULL)
-        return;
-
-    // push root->data to stack HERE
-    return postorder(root->left) && postorder(root->right);
+        {return NULL;}
+    
+    printf("%d ", root->data);
+    postorder(root->left);
+    postorder(root->right);
 }
 
-int kindredSpirits (node *a, node *b){
+int kindredSpirits(node *a, node *b){
+    
     // check if kindred spirits
-    if (postorder())
+    if (postorder(a) == preorder(b)){
+        return 1;
+    }
+    else if (postorder(b) == preorder(a)){
+        return 1;
+    }
+    return 0;
 }
 
 double difficultyRating(void)
