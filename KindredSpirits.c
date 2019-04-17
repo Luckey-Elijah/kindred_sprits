@@ -3,7 +3,15 @@
 #include "KindredSpirits.h"
 
 // passing references
-node *create_node(int data);
+node *create_node(int data)
+{
+	node *n = malloc(sizeof(node));
+
+	n->data = data;
+	n->left = n->right = NULL;
+
+	return n;
+}
 
 // returns 1 if trees are reflection, 0 otherwise
 int isReflection(node *a, node *b)
@@ -43,8 +51,8 @@ node *makeReflection(node *root)
 // preorder algorithm traversal
 void preorder(node *root)
 {
-    if (root = NULL)
-        {return NULL;}
+    // if (root = NULL)
+    //     {return NULL;}
 
     preorder(root->left);
     preorder(root->right);
@@ -55,23 +63,41 @@ void preorder(node *root)
 // postorder algorithm traversal
 void postorder(node *root)
 {
-    if (root = NULL)
-        {return NULL;}
+    // if (root = NULL)
+    //     {return NULL;}
     
     printf("%d ", root->data);
     postorder(root->left);
-    postorder(root->right);
+    postorder(root->right); 
 }
 
+typedef struct kindred_spirit
+{
+    int pre_data;  // current value at PREorder traversal of node A
+    int post_data; // current value at POSTorder traversal of node B
+    //ony used in 
+}kindred_spirit;
+
+int pre_post_traversal(node *a, node *b){
+    // return 0 -> a&b same
+    // return 1 -> a&b not same
+    return 0;
+}
+
+
+// a KindredSpirit is when a trees preorder trav is the same
+// as the postoreder traversal
 int kindredSpirits(node *a, node *b){
-    
-    // check if kindred spirits
-    if (postorder(a) == preorder(b)){
-        return 1;
-    }
-    else if (postorder(b) == preorder(a)){
-        return 1;
-    }
+
+    printf("POSTORDER A: \n");
+    postorder(a);
+
+    printf("PREORDER B: \n");
+    preorder(b);
+
+    printf("Kindred Spirit Test: \n");
+    printf("%d ", pre_post_traversal(a, b));
+
     return 0;
 }
 
