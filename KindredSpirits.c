@@ -1,37 +1,37 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 #include "KindredSpirits.h"
 
-typedef struct kindred_spirit
+typedef struct Stack
 {
-    int *pre_data;  // current value at PREorder traversal of node A
-    int *post_data; 
-}kindred_spirit;
+    int *array;
+    int size;
+    int capacity; 
+}Stack;
 
-// passing references
-node *create_node(int data)
+// capacity of node is stored into stack
+int count_node(node *root)
 {
-	node *n = malloc(sizeof(node));
+    if (root == NULL)
+        {return 0;}
 
-	n->data = data;
-	n->left = n->right = NULL;
+    if (root->left == NULL && root->right == NULL)
+        {return 1;}
 
-	return n;
+    return 1+(count_node(root->left) + count_node(root->right));
 }
 
 // returns 1 if trees are reflection, 0 otherwise
 int isReflection(node *a, node *b)
 {
+    // empty tree = reflection
     if (a == NULL && b == NULL)
-    {
-        // case of when both are NULL
-        return 1;
-    }
+        {return 1;}
+    
+    // if either is NULL then they are not reflections
     if (a == NULL || b == NULL)
-    {
-        // case when one or the other is NULL
-        return 0;
-    }
+        {return 0;}
     
     // recursive call of the function
     return isReflection(a->left, b->right) && isReflection(a->right, b->left);
@@ -45,100 +45,173 @@ node *makeReflection(node *root)
         return NULL;
     }
 
-    // make a node for non-NULL node (see above)
+    // make a new node and allocate memory
     node *newNode;
-    newNode = create_node(root->data); // pass the given data from root node
-    
+    newNode = malloc(sizeof(node));
+
+    // copy data into the newNode
+    newNode->data = root->data;
+
+    // makes recursive call the duplicate the nodes for the tree
     newNode->left  = makeReflection(root->right); // mirror right to left
     newNode->right = makeReflection(root->left);  // mirror left to right
 
     return newNode;
 }
-// TODO: A stack for checking traversals?
+
+// used for create a stack object
+Stack *create_stack(int capacity)
+{
+    Stack *new_stack = malloc(sizeof(Stack));
+
+    if (new_stack == NULL)
+        {printf("Could not allocate memory for the new Stack object.\n");}
+
+    new_stack->array = malloc(sizeof(int) * capacity);
+    new_stack->size = 0;            // empty stack
+    new_stack->capacity = capacity; // capacity is defined in function call
+
+    return new_stack;
+}
+
+// if Stack object is full, return 1. 0 otherwise
+int is_full(Stack *s)
+{
+    // if full
+    if (s->size >= s->capacity)
+        {return 1;}
+
+    // if NOT full 
+    return 0;
+}
+
+// checks if the stack is empty or not.
+int is_empty(Stack *s)
+{
+    return (s == NULL || s->size == 0);
+}
+
+// removes first element of stack and returns it
+int pop(Stack *s)
+{
+    if (is_empty(s))
+        {return 0;} // empty stack
+    
+    return s->array[--s->size];
+}
+
+// removes the passed Stack
+Stack *destroy_stack(Stack *s)
+{
+    if (s == NULL)
+        {
+            free(s);
+            return NULL;
+        }
+
+    return s;
+}
+
+// adds element to top of stack
+void push(Stack *s, int data)
+{
+    if(is_full(s))
+        {return;}
+    
+    s->array[s->size++] = data;
+}
 
 // preorder algorithm traversal
-int *preorder(node *root, int *pre_a, int counter)
+void preorder(node *root, Stack *s)
 {
     if (root == NULL)
-        {return NULL;}
-    preorder(root->left, pre_a, counter++);
-    preorder(root->right, pre_a, counter++);
-    printf("[%d]=%d ",counter, root->data);
-    pre_a[counter] = root->data;
-    return pre_a;
+        {return;}
+
+    push(s, root->data);
+    preorder(root->left, s);
+    preorder(root->right, s);
 }
 
-// postorder algorithm traversal
-int *postorder(node *root, int *post_a, int counter)
+// POSTorder algorithm traversal
+void postorder(node *root, Stack *s)
 {
     if (root == NULL)
-        {return NULL;}
-    
-    printf("[%d]=%d ",counter, root->data);
-    post_a[counter] = root->data;
-    postorder(root->left, post_a, counter++);
-    postorder(root->right, post_a, counter++);
+        {return;}
 
-    return post_a;
+    postorder(root->left, s);
+    postorder(root->right, s);
+    push(s, root->data);
 }
 
-// a KindredSpirit is when a trees preorder trav is the same
+// useful function that works with 
+int helper(Stack *s_1, Stack *s_2)
+{
+    while(!is_empty(s_1))
+    {
+        // pop returns the element most recently popped
+        if(pop(s_1) != pop(s_2))
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+// a KindredSpirit is when a trees preorder traversal is the same
 // as the postoreder traversal
-int kindredSpirits(node *a, node *b){
+int kindredSpirits(node *a, node *b)
+{
+    Stack *s_1 = create_stack(count_node(a)); // stack for 'a'
+    Stack *s_2 = create_stack(count_node(b)); // stack for 'b'
 
-    int counter = 0;
-    int *pre_a;
-    int *post_a;
+    if (a == NULL && b == NULL)
+        {return 1;}
 
-    post_a = postorder(a, post_a, counter);
-    printf("\n");
-    pre_a = preorder(b, pre_a, counter);
-    printf("\n");
+    if (count_node(a) != count_node(b))
+        {return 0;}
 
-    printf("PRE-Order: ");
-    int i;
-    for(i = 0; i < ((sizeof(pre_a))/(sizeof(int))); i++){
-        printf("%d ", pre_a[i]);
-    } printf("\n");
+    preorder(a, s_1);
+    postorder(b, s_2);
 
-    printf("POST-Order: ");
-    for(i = 0; i < ((sizeof(post_a))/(sizeof(int))); i++){
-        printf("%d ", post_a[i]);
-    } printf("\n");
+    if(helper(s_1, s_2))
+    {
+        destroy_stack(s_1);
+        destroy_stack(s_2);
+        return 1;
+    }
+
+    // THIS NOW CHECK INVERSE OF THE NODES
+
+    destroy_stack(s_1);
+    destroy_stack(s_2);
+
+    // create stack for s_1, s_2
+    s_1 = create_stack(count_node(a));
+    s_2 = create_stack(count_node(b));
+
+    postorder(a, s_1);
+    preorder(b, s_2);
+
+    if(helper(s_1, s_2))
+    {
+        destroy_stack(s_1);
+        destroy_stack(s_2);
+        return 1;
+    }
+    
+    destroy_stack(s_1);
+    destroy_stack(s_2);
 
     return 0;
 }
 
-// int main(int argc, char const *argv[])
-// {
-//     node *root1, *root2;
-
-// 	// These are the trees from Figure 9 in the assignment PDF, used for testing
-// 	// the kindredSpirits function.
-// 	root1 = create_node(23);
-// 	root1->left = create_node(12);
-// 	root1->left->left = create_node(5);
-// 	root1->left->right = create_node(18);
-// 	root1->right = create_node(71);
-// 	root1->right->right = create_node(56);
-
-// 	root2 = create_node(56);
-// 	root2->left = create_node(23);
-// 	root2->right = create_node(71);
-// 	root2->right->left = create_node(5);
-// 	root2->right->left->right = create_node(12);
-// 	root2->right->right = create_node(18);
-
-//     return kindredSpirits(root1, root2);
-// }
-
-
 double difficultyRating(void)
 {
-    return 1.0;
+    return 3.0;
 }
 
 double hoursSpent(void)
 {
-    return 2.0;
+    return 5.0;
 }
