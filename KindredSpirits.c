@@ -3,6 +3,10 @@
 #include <limits.h>
 #include "KindredSpirits.h"
 
+// Elijah Luckey - eluckey2472
+// KindredSpirits.c
+// Spring 2019
+
 typedef struct Stack
 {
     int *array;
